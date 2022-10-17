@@ -1,16 +1,28 @@
-import numpy as np
-%matplotlib inline
+from DBReader import SyncReader
+from DBReader.SensorsReaders import CANDecoder
 import matplotlib.pyplot as plt
-import numpy as np
-import timeit
-from rpl import RadarSignalProcessing
-import sys
-from DBReader.DBReader import SyncReader
 
-root_folder ='RADIal/RECORD@2020-11-22_12.54.38'
-db = SyncReader(root_folder,tolerance=40000,offset_radar = -180000,offset_scala = -40000)
+db = SyncReader('RADIal/RECORD@2020-11-22_12.28.47')
+# if you leave the default parameters, the master sensor is the radar as it is the slowest one
+# if you are interested by only the camera and laser scanner, you can call:
+# db = SyncReader('dataset_path',master='camera',tolerance=200000)
 
-RSP = RadarSignalProcessing('CalibrationTable.npy',method='RD')
+# use print_info function to get all the details of the database content
+db.print_info()
+print('')
 
-rd=RSP.run(sample['radar_ch0']['data'],sample['radar_ch1']['data'],sample['radar_ch2']['data'],sample['radar_ch3']['data'])
+# Create an iterator on the dataset
+ite = iter(db)
 
+# ALl data are return in a dictionay
+data=next(ite)
+print(data.keys())
+
+# and then each sensor returns a dictionary
+print(data['camera'].keys())
+print('')
+
+plt.plot(data['scala']['data'][:,1],data['scala']['data'][:,0],'r.')
+plt.xlim(-40,40)
+plt.ylim(0,100)
+plt.grid()
